@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="./vue.js"></script>
+</head>
+<body>
+    <div id="app">
+        <ul>
+            <li v-for="course in courses" :key="course">{{course}}</li>
+        </ul>
+        <add-course v-model="course" @add-course="addCourse"></add-course>
+        <!-- $event将来传过来是e.target.event -->
+        <!-- <add-course :value="course" @input="value=$event"></add-course> -->
+    </div>
+    <script>
+        // 无状态组件
+        Vue.component('add-course', {
+            props: ['value'],
+            template: `
+                <div>
+                    <input :value="value" @input="onInput" @keydown.enter="addCourse" placeholder="输入课程名称" />
+                    <button @click="addCourse">添加课程</button>
+                </div>
+            `,
+            methods: {
+                onInput (e) {
+                    this.$emit('input', e.target.value)
+                },
+                addCourse () {
+                    this.$emit('add-course')
+                }
+            }
+        })
+        function fetchData () {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    resolve([
+                        '课程1',
+                        '课程2',
+                    ])
+                }, 1000)
+            })
+        }
+        new Vue({
+            el: '#app',
+            data: {
+                courses: [],
+                course: '',
+            },
+            async created () {
+                const courses = await fetchData()
+                this.courses = courses;
+            },
+            methods: {
+                addCourse () {
+                    this.courses.push(this.course)
+                    this.course = ''
+                }
+            }
+        })
+
+        
+    </script>
+</body>
+</html>
